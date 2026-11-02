@@ -1,9 +1,7 @@
 import './App.css'
 import IssuesPage from './Pages/IssuesPage'
 
-function App() {
 
+export default function App() {
   return <IssuesPage/>;
 }
-
-export default App
