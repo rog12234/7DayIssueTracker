@@ -171,7 +171,8 @@ p{
 }
 
 .modal input,
-.modal select {
+.modal select,
+.modal textarea {
   padding: 10px;
   border: 1px solid #bbb;
   border-radius: 6px;
@@ -243,4 +244,105 @@ p{
   display: flex;
   align-items: center;
   gap: 10px;
+}
+/* Issue cards: main content opens full details, actions stay separate. */
+.issue-card-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.issue-card-main:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+
+.view-details {
+  color: #2563eb;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.buttons-list {
+  margin-top: auto;
+  padding-top: 10px;
+  gap: 10px;
+}
+
+/* Full-issue details popup */
+.issue-details-modal {
+  width: min(680px, 92vw);
+  text-align: left;
+}
+
+.issue-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.issue-details-header h2 {
+  overflow-wrap: anywhere;
+}
+
+.details-close {
+  border: 0;
+  background: transparent;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: #475569;
+}
+
+.issue-details-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 12px 0 20px;
+}
+
+.issue-details-modal h3 {
+  margin: 18px 0 8px;
+  font-size: 1rem;
+}
+
+.issue-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #475569;
+}
+
+.map-placeholder {
+  min-height: 215px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 16px;
+  color: #475569;
+}
+
+.map-placeholder-icon {
+  font-size: 28px;
+}
+
+.map-placeholder strong {
+  color: #334155;
 }

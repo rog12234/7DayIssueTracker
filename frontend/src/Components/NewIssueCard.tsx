@@ -5,6 +5,9 @@ export type Issue = {
   title: string;
   category: string;
   status: string;
+  description?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 type NewIssueCardProps = {
@@ -33,6 +36,10 @@ export default function NewIssueCard({
     issueToEdit?.status ?? "Open"
   );
 
+  const [description, setDescription] = useState(
+    issueToEdit?.description ?? ""
+  );
+
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -42,6 +49,9 @@ export default function NewIssueCard({
       title: title.trim(),
       category,
       status,
+      description: description.trim() || undefined,
+      latitude: issueToEdit?.latitude,
+      longitude: issueToEdit?.longitude,
     });
   }
 
@@ -68,6 +78,15 @@ export default function NewIssueCard({
             required
           />
 
+          <label htmlFor="issue-description">Description (optional)</label>
+          <textarea
+            id="issue-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Describe the issue in more detail..."
+            rows={4}
+          />
+
           <label htmlFor="issue-category">Category</label>
           <select
             id="issue-category"
@@ -76,6 +95,7 @@ export default function NewIssueCard({
           >
             <option value="Electrical">Electrical</option>
             <option value="Infrastructure">Infrastructure</option>
+            <option value="Infrastructure/Waste Management">Infrastructure / Waste Management</option>
             <option value="Drainage">Drainage</option>
             <option value="Other">Other</option>
           </select>

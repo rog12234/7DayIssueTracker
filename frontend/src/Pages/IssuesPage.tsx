@@ -1,6 +1,7 @@
 import IssueCard from "../Components/IssueCard";
 import { useState } from 'react';
 import NewIssueCard from "../Components/NewIssueCard";
+import IssueDetails from "../Components/IssueDetails";
 import type { Issue } from "../Components/NewIssueCard";
 import '../App.css'
 
@@ -38,6 +39,7 @@ export default function IssuesPage() {
     const [showNewIssue, setShowNewIssue] = useState(false);
     const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
     const [statusFilter, setStatusFilter] = useState("All");
+    const [viewingIssueId, setViewingIssueId] = useState<string | null>(null);
 
     function addIssue(newIssue: Omit<Issue, "id">) {
         const issue: Issue = {
@@ -79,6 +81,8 @@ export default function IssuesPage() {
         setEditingIssue(null);
     }
 
+    const viewingIssue = issues.find((issue) => issue.id === viewingIssueId);
+
     const filteredIssues = issues.filter((issue) => {
         return statusFilter === "All" || issue.status === statusFilter;
     });
@@ -110,15 +114,24 @@ export default function IssuesPage() {
             <div className="issue-list">
                 {filteredIssues.map((issue) => (
                     <IssueCard
+                        key={issue.id}
                         id={issue.id}
                         title={issue.title}
                         category={issue.category}
                         status={issue.status}
-                        onEdit={() => startEditing(issue.id)}
-                        onDelete={() => deleteIssue(issue.id)}
+                        onView={setViewingIssueId}
+                        onEdit={startEditing}
+                        onDelete={deleteIssue}
                     />
                 ))}
             </div>
+            {viewingIssue && (
+                <IssueDetails
+                    issue={viewingIssue}
+                    onClose={() => setViewingIssueId(null)}
+                />
+            )}
+
             {showNewIssue && (
                 <NewIssueCard
                     onSaveIssue={addIssue}
