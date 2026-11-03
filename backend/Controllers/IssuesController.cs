@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MunicipalIssueTracker.Api.Data;
 using MunicipalIssueTracker.Api.Models;
 
 namespace MunicipalIssueTracker.Api.Controllers;
@@ -14,52 +16,31 @@ public class IssuesController : ControllerBase
         "Closed"
     };
 
-    private static readonly List<Issue> Issues = new()
+    private readonly AppDbContext _context;
+
+    public IssuesController(AppDbContext context)
     {
-        new Issue
-        {
-            Title = "Pothole on the main road",
-            Category = "Infrastructure",
-            Status = "Open",
-            Description = "Large pothole affecting traffic."
-        },
-        new Issue
-        {
-            Title = "Broken Streetlight",
-            Category = "Electrical",
-            Status = "Closed",
-            Description = "Streetlight is not functioning."
-        },
-        new Issue
-        {
-            Title = "GEBE left road unpaved",
-            Category = "Infrastructure",
-            Status = "In Progress",
-            Description = "GEBE fixed some cables, and cut the pavement to get to them but only filled it with sand. They repatched the other roads but not within this alley.",
-        },
-        new Issue
-        {
-            Title = "Dog waste creating a puddle on the road",
-            Category = "Waste Management",
-            Status = "Open",
-            Description = "Urine and fecal matter from the security company's kennels are running into the street when they clean them, causing a large puddle of it on the road side.",
-        },
-    };
+        _context = context;
+    }
 
     // GET: api/issues
     [HttpGet]
-    public IActionResult GetAllIssues()
+    public async Task<IActionResult> GetAllIssues()
     {
-        return Ok(Issues);
+        var issues = await _context.Issues
+            .AsNoTracking()
+            .ToListAsync();
+
+        return Ok(issues);
     }
 
     // GET: api/issues/{id}
     [HttpGet("{id:guid}")]
-    public IActionResult GetIssueById(Guid id)
+    public async Task<IActionResult> GetIssueById(Guid id)
     {
-        var issue = Issues.FirstOrDefault(
-            issue => issue.Id == id
-        );
+        var issue = await _context.Issues
+            .AsNoTracking()
+            .FirstOrDefaultAsync(i => i.Id == id);
 
         if (issue == null)
         {
@@ -68,38 +49,46 @@ public class IssuesController : ControllerBase
 
         return Ok(issue);
     }
-
+    //tells ASP.NET Core that the endpoint handles POST requests
+    //[FromBody] converts the incoming JSON data into an IssueRequest object
+    //StringComparer.OrdinalIgnoreCase, ignores case-sensitivity
     // POST: api/issues
-    [HttpPost] //tells ASP.NET Core that the endpoint handles POST requests
-    public IActionResult CreateIssue(
-        [FromBody] IssueRequest request) //[FromBody] converts the incoming JSON data into an IssueRequest object
+    [HttpPost]
+    public async Task<IActionResult> CreateIssue(
+    [FromBody] IssueRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Title) ||
             string.IsNullOrWhiteSpace(request.Category))
         {
-            return BadRequest(
-                "Title and Category are required."
-            );
+            return BadRequest("Title and Category are required.");
         }
 
-        if (!ValidStatuses.Contains(request.Status, StringComparer.OrdinalIgnoreCase)) //StringComparer.OrdinalIgnoreCase, ignores case-sensitivity
+        var status = ValidStatuses.FirstOrDefault(
+            s => string.Equals(
+                s,
+                request.Status?.Trim(),
+                StringComparison.OrdinalIgnoreCase
+            )
+        );
+
+        if (status == null)
         {
-            return BadRequest(
-                "Invalid Status, use 'Open', 'In Progress', or 'Closed'."
-            );
+            return BadRequest("Invalid issue status.");
         }
 
         var newIssue = new Issue
         {
             Title = request.Title.Trim(),
             Category = request.Category.Trim(),
-            Status = request.Status,
+            Status = status,
             Description = request.Description,
             Latitude = request.Latitude,
             Longitude = request.Longitude
         };
 
-        Issues.Add(newIssue);
+        _context.Issues.Add(newIssue);
+
+        await _context.SaveChangesAsync();
 
         return CreatedAtAction(
             nameof(GetIssueById),
@@ -108,15 +97,14 @@ public class IssuesController : ControllerBase
         );
     }
 
+    //StringComparer.OrdinalIgnoreCase, ignores case-sensitivity
     // PUT: api/issues/{id}
     [HttpPut("{id:guid}")]
-    public IActionResult UpdateIssue(
-        Guid id,
-        [FromBody] IssueRequest request)
+    public async Task<IActionResult> UpdateIssue(
+     Guid id,
+     [FromBody] IssueRequest request)
     {
-        var existingIssue = Issues.FirstOrDefault(
-            issue => issue.Id == id
-        );
+        var existingIssue = await _context.Issues.FindAsync(id);
 
         if (existingIssue == null)
         {
@@ -126,42 +114,48 @@ public class IssuesController : ControllerBase
         if (string.IsNullOrWhiteSpace(request.Title) ||
             string.IsNullOrWhiteSpace(request.Category))
         {
-            return BadRequest(
-                "Title and Category are required."
-            );
+            return BadRequest("Title and Category are required.");
         }
 
-        if (!ValidStatuses.Contains(request.Status, StringComparer.OrdinalIgnoreCase)) //StringComparer.OrdinalIgnoreCase, ignores case-sensitivity
+        var status = ValidStatuses.FirstOrDefault(
+            s => string.Equals(
+                s,
+                request.Status?.Trim(),
+                StringComparison.OrdinalIgnoreCase
+            )
+        );
+
+        if (status == null)
         {
-            return BadRequest(
-                "Invalid Status, use 'Open', 'In Progress', or 'Closed'."
-            );
+            return BadRequest("Invalid issue status.");
         }
 
         existingIssue.Title = request.Title.Trim();
         existingIssue.Category = request.Category.Trim();
-        existingIssue.Status = request.Status;
+        existingIssue.Status = status;
         existingIssue.Description = request.Description;
         existingIssue.Latitude = request.Latitude;
         existingIssue.Longitude = request.Longitude;
+
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
     // DELETE: api/issues/{id}
     [HttpDelete("{id:guid}")]
-    public IActionResult DeleteIssue(Guid id)
+    public async Task<IActionResult> DeleteIssue(Guid id)
     {
-        var existingIssue = Issues.FirstOrDefault(
-            issue => issue.Id == id
-        );
+        var existingIssue = await _context.Issues.FindAsync(id);
 
         if (existingIssue == null)
         {
             return NotFound("Issue not found.");
         }
 
-        Issues.Remove(existingIssue);
+        _context.Issues.Remove(existingIssue);
+
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
