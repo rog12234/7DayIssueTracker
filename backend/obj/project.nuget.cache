@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "csDqqOZFftc=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\roger\\Desktop\\Computech-Projects\\IssueTracker\\backend\\MunicipalIssueTracker.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\roger\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.14\\microsoft.aspnetcore.openapi.10.0.14.nupkg.sha512",
+    "C:\\Users\\roger\\.nuget\\packages\\microsoft.openapi\\2.12.2\\microsoft.openapi.2.12.2.nupkg.sha512"
+  ],
+  "logs": []
+}
