@@ -5,9 +5,9 @@ export type Issue = {
   title: string;
   category: string;
   status: string;
-  description?: string;
-  latitude?: number;
-  longitude?: number;
+  description?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 type NewIssueCardProps = {

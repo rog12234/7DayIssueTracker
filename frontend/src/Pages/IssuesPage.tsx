@@ -1,5 +1,5 @@
 import IssueCard from "../Components/IssueCard";
-import { useState } from 'react';
+import { useEffect, useState } from "react"; //useEffect, allows React to synchronize a component with an external system, such as a REST API
 import NewIssueCard from "../Components/NewIssueCard";
 import IssueDetails from "../Components/IssueDetails";
 import type { Issue } from "../Components/NewIssueCard";
@@ -8,38 +8,55 @@ import '../App.css'
 
 
 export default function IssuesPage() {
-    const [issues, setIssues] = useState<Issue[]>([
-        {
-            id: "1",
-            title: "Pothole on the main road",
-            category: "Infrastructure",
-            status: "Open",
-        },
-        {
-            id: "2",
-            title: "GEBE left road unpaved",
-            category: "Infrastructure",
-            status: "In Progress",
-        },
-        {
-            id: "3",
-            title: "Broken Streetlight",
-            category: "Electrical",
-            status: "Closed",
-        },
-        {
-            id: "4",
-            title: "Dog waste creating a puddle on the road",
-            category: "Infrastructure/Waste Management",
-            status: "Open",
-        },
-
-    ]);
-
+    const [issues, setIssues] = useState<Issue[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showNewIssue, setShowNewIssue] = useState(false);
     const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
     const [statusFilter, setStatusFilter] = useState("All");
     const [viewingIssueId, setViewingIssueId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const controller = new AbortController(); //AbortController cancels outdated requests during cleanup.
+
+        async function loadIssues() {
+            try {
+                setLoading(true);
+                setError(null);
+                //Sends an HTTP GET request to your ASP.NET Core backend.
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/issues`,
+                    { signal: controller.signal }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Failed to retrieve issues: ${response.status}`
+                    );
+                }
+                //Converts the JSON response into JavaScript objects, which TypeScript treats as an array of Issue objects.
+                const data: Issue[] = await response.json();
+
+                setIssues(data);
+            } catch (err) {
+                if (!controller.signal.aborted) {
+                    setError(
+                        err instanceof Error
+                            ? err.message
+                            : "An unexpected error occurred."
+                    );
+                }
+            } finally {
+                if (!controller.signal.aborted) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        loadIssues();
+
+        return () => controller.abort();
+    }, []);
 
     function addIssue(newIssue: Omit<Issue, "id">) {
         const issue: Issue = {
@@ -111,20 +128,36 @@ export default function IssuesPage() {
                     </select>
                 </div>
             </div>
-            <div className="issue-list">
-                {filteredIssues.map((issue) => (
-                    <IssueCard
-                        key={issue.id}
-                        id={issue.id}
-                        title={issue.title}
-                        category={issue.category}
-                        status={issue.status}
-                        onView={setViewingIssueId}
-                        onEdit={startEditing}
-                        onDelete={deleteIssue}
-                    />
-                ))}
-            </div>
+            {loading && (
+                <p role="status">Loading issues...</p>
+            )}
+
+            {error && (
+                <p role="alert" className="error-message">
+                    {error}
+                </p>
+            )}
+
+            {!loading && !error && filteredIssues.length === 0 && (
+                <p>No issues found.</p>
+            )}
+
+            {!loading && !error && (
+                <div className="issue-list">
+                    {filteredIssues.map((issue) => (
+                        <IssueCard
+                            key={issue.id}
+                            id={issue.id}
+                            title={issue.title}
+                            category={issue.category}
+                            status={issue.status}
+                            onView={setViewingIssueId}
+                            onEdit={startEditing}
+                            onDelete={deleteIssue}
+                        />
+                    ))}
+                </div>
+            )}
             {viewingIssue && (
                 <IssueDetails
                     issue={viewingIssue}

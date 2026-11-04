@@ -346,3 +346,12 @@ p{
 .map-placeholder strong {
   color: #334155;
 }
+
+.error-message {
+  color: #b91c1c;
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
