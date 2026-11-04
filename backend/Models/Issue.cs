@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace MunicipalIssueTracker.Api.Models;
 
 public class Issue
@@ -15,4 +16,7 @@ public class Issue
     public double? Latitude { get; set; }
 
     public double? Longitude { get; set; }
+
+    [JsonIgnore]
+    public List<IssueComment> Comments { get; set; } = new();
 }

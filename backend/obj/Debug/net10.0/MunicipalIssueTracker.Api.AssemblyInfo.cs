@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MunicipalIssueTracker.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a72267ce4fd9846855cb0af0583106b686a24277")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+61a2df6983b60c245bc1d41eef6a0934c98e90f6")]
 [assembly: System.Reflection.AssemblyProductAttribute("MunicipalIssueTracker.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MunicipalIssueTracker.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

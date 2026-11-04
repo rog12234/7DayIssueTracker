@@ -53,6 +53,53 @@ namespace MunicipalIssueTracker.Api.Migrations
 
                     b.ToTable("Issues");
                 });
+
+            modelBuilder.Entity("MunicipalIssueTracker.Api.Models.IssueComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Author")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("IssueId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NewStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PreviousStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssueId");
+
+                    b.ToTable("IssueComments");
+                });
+
+            modelBuilder.Entity("MunicipalIssueTracker.Api.Models.IssueComment", b =>
+                {
+                    b.HasOne("MunicipalIssueTracker.Api.Models.Issue", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("IssueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MunicipalIssueTracker.Api.Models.Issue", b =>
+                {
+                    b.Navigation("Comments");
+                });
 #pragma warning restore 612, 618
         }
     }

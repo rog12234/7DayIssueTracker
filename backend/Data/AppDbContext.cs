@@ -10,6 +10,23 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<Issue> Issues { get; set; }
-        = null!;
+    public DbSet<Issue> Issues { get; set; } = null!;
+
+    public DbSet<IssueComment> IssueComments { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Issue>()
+            .HasMany(issue => issue.Comments)
+            .WithOne()
+            .HasForeignKey(comment => comment.IssueId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<IssueComment>()
+            .Property(comment => comment.Text)
+            .HasMaxLength(2000)
+            .IsRequired();
+    }
 }
