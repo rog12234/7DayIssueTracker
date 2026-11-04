@@ -58,13 +58,38 @@ export default function IssuesPage() {
         return () => controller.abort();
     }, []);
 
-    function addIssue(newIssue: Omit<Issue, "id">) {
-        const issue: Issue = {
-            ...newIssue,
-            id: crypto.randomUUID(),
-        };
+    async function addIssue(newIssue: Omit<Issue, "id">) {
+        const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/api/issues`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...newIssue,
+                    description: newIssue.description ?? null,
+                    latitude: newIssue.latitude ?? null,
+                    longitude: newIssue.longitude ?? null,
+                }),
+            }
+        );
 
-        setIssues((previousIssues) => [...previousIssues, issue]);
+        if (!response.ok) {
+            const errorMessage = await response.text();
+
+            throw new Error(
+                errorMessage || `Failed to create issue: ${response.status}`
+            );
+        }
+
+        const savedIssue: Issue = await response.json();
+
+        setIssues((previousIssues) => [
+            ...previousIssues,
+            savedIssue,
+        ]);
+
         setShowNewIssue(false);
     }
 

@@ -355,3 +355,11 @@ p{
   border-radius: 8px;
   margin-top: 20px;
 }
+
+.form-error {
+  color: #b91c1c;
+  background-color: #fee2e2;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}

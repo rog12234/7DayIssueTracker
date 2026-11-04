@@ -12,7 +12,9 @@ export type Issue = {
 
 type NewIssueCardProps = {
   issueToEdit?: Issue;
-  onSaveIssue: (issue: Omit<Issue, "id">) => void;
+  onSaveIssue: (
+    issue: Omit<Issue, "id">
+  ) => void | Promise<void>;
   onClose: () => void;
 };
 
@@ -40,23 +42,42 @@ export default function NewIssueCard({
     issueToEdit?.description ?? ""
   );
 
-  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [formError, setFormError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!title.trim()) return;
+    if (!title.trim() || isSaving) return;
 
-    onSaveIssue({
-      title: title.trim(),
-      category,
-      status,
-      description: description.trim() || undefined,
-      latitude: issueToEdit?.latitude,
-      longitude: issueToEdit?.longitude,
-    });
+    setIsSaving(true);
+    setFormError(null);
+
+    try {
+      await onSaveIssue({
+        title: title.trim(),
+        category,
+        status,
+        description: description.trim() || undefined,
+        latitude: issueToEdit?.latitude,
+        longitude: issueToEdit?.longitude,
+      });
+    } catch (error) {
+      setFormError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred."
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={() => {
+      if (!isSaving) onClose();
+    }}>
       <div
         className="modal"
         role="dialog"
@@ -110,13 +131,29 @@ export default function NewIssueCard({
             <option value="In Progress">In Progress</option>
             <option value="Closed">Closed</option>
           </select>
-
+          {formError && (
+            <p className="form-error" role="alert">
+              {formError}
+            </p>
+          )}
           <div className="modal-actions">
-            <button type="button" onClick={onClose}>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+            >
               Cancel
             </button>
-            <button type="submit">
-              {isEditing ? "Save Changes" : "Add Issue"}
+
+            <button
+              type="submit"
+              disabled={isSaving || !title.trim()}
+            >
+              {isSaving
+                ? "Saving..."
+                : isEditing
+                  ? "Save Changes"
+                  : "Add Issue"}
             </button>
           </div>
         </form>
