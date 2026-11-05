@@ -1,4 +1,5 @@
 import { useState } from "react";
+import LocationPicker from "./LocationPicker";
 
 export type Issue = {
   id: string;
@@ -55,6 +56,14 @@ export default function NewIssueCard({
 
   const [formError, setFormError] = useState<string | null>(null);
 
+  const [latitude, setLatitude] = useState<number | null>(
+    issueToEdit?.latitude ?? null
+  );
+
+  const [longitude, setLongitude] = useState<number | null>(
+    issueToEdit?.longitude ?? null
+  );
+
   async function handleSubmit(
     e: React.SubmitEvent<HTMLFormElement>
   ) {
@@ -71,8 +80,8 @@ export default function NewIssueCard({
         category,
         status,
         description: description.trim() || undefined,
-        latitude: issueToEdit?.latitude ?? null,
-        longitude: issueToEdit?.longitude ?? null,
+        latitude,
+        longitude,
       };
 
       // Only include progress information during status changes
@@ -153,6 +162,35 @@ export default function NewIssueCard({
             <option value="In Progress">In Progress</option>
             <option value="Closed">Closed</option>
           </select>
+
+          <div className="location-section">
+            <h3>Issue Location (optional)</h3>
+
+            <p>
+              Click the map to select where the issue is located.
+            </p>
+
+            <LocationPicker
+              latitude={latitude}
+              longitude={longitude}
+              onChange={(lat, lng) => {
+                setLatitude(lat);
+                setLongitude(lng);
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                setLatitude(null);
+                setLongitude(null);
+              }}
+              disabled={latitude === null}
+            >
+              Clear Location
+            </button>
+          </div>
+
           {statusChanged && (
             <div className="progress-fields">
               <label htmlFor="progress-comment">

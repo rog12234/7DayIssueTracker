@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import type { Issue } from "./NewIssueCard";
+import IssueMap from "./IssueMap";
 
 type IssueComment = {
   id: string;
@@ -18,9 +19,6 @@ type IssueDetailsProps = {
 };
 
 export default function IssueDetails({ issue, onClose }: IssueDetailsProps) {
-  const hasLocation =
-    typeof issue.latitude === "number" &&
-    typeof issue.longitude === "number";
 
   const [comments, setComments] = useState<IssueComment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,16 +159,7 @@ export default function IssueDetails({ issue, onClose }: IssueDetailsProps) {
         </p>
 
         <h3>Issue location</h3>
-        <div className="map-placeholder">
-          <span className="map-placeholder-icon" aria-hidden="true">📍</span>
-          <strong>Map preview</strong>
-          <p>Interactive map will be added during the GIS exercise.</p>
-          <p>
-            {hasLocation
-              ? `Coordinates: ${issue.latitude}, ${issue.longitude}`
-              : "Location not assigned yet."}
-          </p>
-        </div>
+        <IssueMap issue={issue} />
         <section className="progress-section">
           <button
             type="button"

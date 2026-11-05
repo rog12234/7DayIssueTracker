@@ -160,8 +160,8 @@ p{
   color: #222;
   padding: 24px;
   border-radius: 12px;
-  width: min(400px, 90vw);
-  max-height: 90vh;
+  width: min(600px, 90vw);
+  max-height: 50vh;
   overflow-y: auto;
 }
 
@@ -516,4 +516,65 @@ p{
 
 #progress-history-content {
   margin-top: 12px;
+}
+
+/* Interactive issue map */
+
+.issue-map {
+  height: 300px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  z-index: 0;
+}
+
+.map-coordinates {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Location selection */
+
+.location-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.location-section h3 {
+  margin: 0;
+}
+
+.location-section p {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.location-picker {
+  width: 100%;
+}
+
+.location-picker-map {
+  height: 260px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  z-index: 0;
+}
+
+.location-section button {
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Ensure modal content remains scrollable */
+
+.modal {
+  max-height: 90vh;
+  overflow-y: auto;
 }
