@@ -17,6 +17,9 @@ public class Issue
 
     public double? Longitude { get; set; }
 
+    public DateTimeOffset CreatedAt { get; set; }
+    = DateTimeOffset.UtcNow;
+
     [JsonIgnore]
     public List<IssueComment> Comments { get; set; } = new();
 }

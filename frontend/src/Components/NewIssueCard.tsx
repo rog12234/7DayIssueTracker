@@ -9,9 +9,10 @@ export type Issue = {
   description?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  createdAt: string;
 };
 
-export type IssueInput = Omit<Issue, "id"> & {
+export type IssueInput = Omit<Issue, "id" | "createdAt"> & {
   progressComment?: string;
   author?: string;
 };
@@ -56,13 +57,17 @@ export default function NewIssueCard({
 
   const [formError, setFormError] = useState<string | null>(null);
 
-  const [latitude, setLatitude] = useState<number | null>(
-    issueToEdit?.latitude ?? null
-  );
+  const [latitude, setLatitude] = useState<number | null>(issueToEdit?.latitude ?? null);
 
-  const [longitude, setLongitude] = useState<number | null>(
-    issueToEdit?.longitude ?? null
-  );
+  const [longitude, setLongitude] = useState<number | null>(issueToEdit?.longitude ?? null);
+
+  const savedLatitude = issueToEdit?.latitude ?? null;
+
+  const savedLongitude = issueToEdit?.longitude ?? null;
+
+  const [mapResetCount, setMapResetCount] = useState(0);
+
+  const locationHasChanged = latitude !== savedLatitude || longitude !== savedLongitude;
 
   async function handleSubmit(
     e: React.SubmitEvent<HTMLFormElement>
@@ -171,6 +176,7 @@ export default function NewIssueCard({
             </p>
 
             <LocationPicker
+              key={`${issueToEdit?.id ?? "new"}-${mapResetCount}`}
               latitude={latitude}
               longitude={longitude}
               onChange={(lat, lng) => {
@@ -179,16 +185,32 @@ export default function NewIssueCard({
               }}
             />
 
-            <button
-              type="button"
-              onClick={() => {
-                setLatitude(null);
-                setLongitude(null);
-              }}
-              disabled={latitude === null}
-            >
-              Clear Location
-            </button>
+            <div className="location-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  setLatitude(null);
+                  setLongitude(null);
+                }}
+                disabled={latitude === null && longitude === null}
+              >
+                Clear Location
+              </button>
+
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLatitude(savedLatitude);
+                    setLongitude(savedLongitude);
+                    setMapResetCount((previous) => previous + 1);
+                  }}
+                  disabled={!locationHasChanged}
+                >
+                  Reset Location
+                </button>
+              )}
+            </div>
           </div>
 
           {statusChanged && (

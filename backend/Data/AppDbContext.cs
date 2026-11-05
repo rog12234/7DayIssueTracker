@@ -23,7 +23,11 @@ public class AppDbContext : DbContext
             .WithOne()
             .HasForeignKey(comment => comment.IssueId)
             .OnDelete(DeleteBehavior.Cascade);
-
+        modelBuilder.Entity<Issue>()
+            .Property(i => i.CreatedAt)
+            .HasDefaultValueSql(
+                "TODATETIMEOFFSET(SYSUTCDATETIME(), '+00:00')"
+            );
         modelBuilder.Entity<IssueComment>()
             .Property(comment => comment.Text)
             .HasMaxLength(2000)

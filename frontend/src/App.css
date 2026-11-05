@@ -578,3 +578,35 @@ p{
   max-height: 90vh;
   overflow-y: auto;
 }
+
+.sorting-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.sorting-controls select {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.location-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.location-actions button {
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.location-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -15,6 +15,8 @@ export default function IssuesPage() {
     const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
     const [statusFilter, setStatusFilter] = useState("All");
     const [viewingIssueId, setViewingIssueId] = useState<string | null>(null);
+    const [sortBy, setSortBy] = useState<"date" | "status">("date");
+    const [dateOrder, setDateOrder] = useState<"newest" | "oldest">("newest");
 
     useEffect(() => {
         const controller = new AbortController(); //AbortController cancels outdated requests during cleanup.
@@ -58,7 +60,7 @@ export default function IssuesPage() {
         return () => controller.abort();
     }, []);
 
-    async function addIssue(newIssue: Omit<Issue, "id">) {
+    async function addIssue(newIssue: IssueInput) {
         const response = await fetch(
             `${import.meta.env.VITE_API_URL}/api/issues`,
             {
@@ -189,6 +191,38 @@ export default function IssuesPage() {
         return statusFilter === "All" || issue.status === statusFilter;
     });
 
+    const statusOrder: Record<string, number> = {
+        Open: 0,
+        "In Progress": 1,
+        Closed: 2,
+    };
+
+    const sortedIssues = [...filteredIssues].sort((a, b) => {
+        // Calculate date difference
+        const dateDifference =
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime();
+
+        // Determine newest or oldest order
+        const dateResult =
+            dateOrder === "newest"
+                ? dateDifference
+                : -dateDifference;
+
+        // Group issues by status if selected
+        if (sortBy === "status") {
+            const statusDifference =
+                (statusOrder[a.status] ?? 99) -
+                (statusOrder[b.status] ?? 99);
+
+            if (statusDifference !== 0) {
+                return statusDifference;
+            }
+        }
+
+        return dateResult || a.title.localeCompare(b.title);
+    });
+
     return (
         <main className="issues-page">
             <h1>Municipality Issue Tracker</h1>
@@ -197,6 +231,38 @@ export default function IssuesPage() {
                 <button onClick={() => setShowNewIssue(true)}>
                     Add Issue
                 </button>
+
+                <div className="sorting-controls">
+                    <label htmlFor="sort-by">
+                        Sort by
+                    </label>
+
+                    <select
+                        id="sort-by"
+                        value={sortBy}
+                        onChange={(e) =>
+                            setSortBy(e.target.value as "date" | "status")
+                        }
+                    >
+                        <option value="date">Date</option>
+                        <option value="status">Status</option>
+                    </select>
+
+                    <label htmlFor="date-order">
+                        Date order
+                    </label>
+
+                    <select
+                        id="date-order"
+                        value={dateOrder}
+                        onChange={(e) =>
+                            setDateOrder(e.target.value as "newest" | "oldest")
+                        }
+                    >
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                    </select>
+                </div>
 
                 <div className="filter-group">
                     <label htmlFor="status-filter">Filter by status:</label>
@@ -229,7 +295,7 @@ export default function IssuesPage() {
 
             {!loading && !error && (
                 <div className="issue-list">
-                    {filteredIssues.map((issue) => (
+                    {sortedIssues.map((issue) => (
                         <IssueCard
                             key={issue.id}
                             id={issue.id}
