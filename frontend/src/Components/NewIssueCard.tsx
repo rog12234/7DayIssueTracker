@@ -10,11 +10,14 @@ export type Issue = {
   longitude?: number | null;
 };
 
+export type IssueInput = Omit<Issue, "id"> & {
+  progressComment?: string;
+  author?: string;
+};
+
 type NewIssueCardProps = {
   issueToEdit?: Issue;
-  onSaveIssue: (
-    issue: Omit<Issue, "id">
-  ) => void | Promise<void>;
+  onSaveIssue: (issue: IssueInput) => void | Promise<void>;
   onClose: () => void;
 };
 
@@ -42,11 +45,19 @@ export default function NewIssueCard({
     issueToEdit?.description ?? ""
   );
 
+  const [progressComment, setProgressComment] = useState("");
+  const [author, setAuthor] = useState("");
+
+  const statusChanged =
+    isEditing && status !== issueToEdit?.status;
+
   const [isSaving, setIsSaving] = useState(false);
 
   const [formError, setFormError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    e: React.SubmitEvent<HTMLFormElement>
+  ) {
     e.preventDefault();
 
     if (!title.trim() || isSaving) return;
@@ -55,14 +66,25 @@ export default function NewIssueCard({
     setFormError(null);
 
     try {
-      await onSaveIssue({
+      const issueData: IssueInput = {
         title: title.trim(),
         category,
         status,
         description: description.trim() || undefined,
-        latitude: issueToEdit?.latitude,
-        longitude: issueToEdit?.longitude,
-      });
+        latitude: issueToEdit?.latitude ?? null,
+        longitude: issueToEdit?.longitude ?? null,
+      };
+
+      // Only include progress information during status changes
+      if (statusChanged) {
+        issueData.progressComment =
+          progressComment.trim() || undefined;
+
+        issueData.author =
+          author.trim() || undefined;
+      }
+
+      await onSaveIssue(issueData);
     } catch (error) {
       setFormError(
         error instanceof Error
@@ -131,6 +153,34 @@ export default function NewIssueCard({
             <option value="In Progress">In Progress</option>
             <option value="Closed">Closed</option>
           </select>
+          {statusChanged && (
+            <div className="progress-fields">
+              <label htmlFor="progress-comment">
+                Progress Comment (optional)
+              </label>
+
+              <textarea
+                id="progress-comment"
+                value={progressComment}
+                onChange={(e) => setProgressComment(e.target.value)}
+                placeholder="Describe the progress made..."
+                maxLength={2000}
+                rows={3}
+              />
+
+              <label htmlFor="progress-author">
+                Updated By (optional)
+              </label>
+
+              <input
+                id="progress-author"
+                type="text"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="Employee name"
+              />
+            </div>
+          )}
           {formError && (
             <p className="form-error" role="alert">
               {formError}

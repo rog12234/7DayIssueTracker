@@ -2,7 +2,7 @@ import IssueCard from "../Components/IssueCard";
 import { useEffect, useState } from "react"; //useEffect, allows React to synchronize a component with an external system, such as a REST API
 import NewIssueCard from "../Components/NewIssueCard";
 import IssueDetails from "../Components/IssueDetails";
-import type { Issue } from "../Components/NewIssueCard";
+import type { Issue, IssueInput, } from "../Components/NewIssueCard";
 import '../App.css'
 
 
@@ -93,10 +93,41 @@ export default function IssuesPage() {
         setShowNewIssue(false);
     }
 
-    function deleteIssue(id: string) {
-        setIssues((previousIssues) =>
-            previousIssues.filter((issue) => issue.id !== id)
+    async function deleteIssue(id: string) {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this issue?"
         );
+
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/issues/${id}`,
+                {
+                    method: "DELETE",
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Failed to delete issue: ${response.status}`
+                );
+            }
+
+            setIssues((previousIssues) =>
+                previousIssues.filter((issue) => issue.id !== id)
+            );
+
+            setViewingIssueId((currentId) =>
+                currentId === id ? null : currentId
+            );
+        } catch (error) {
+            console.error("Delete failed:", error);
+
+            window.alert(
+                "Could not delete the issue. Please try again."
+            );
+        }
     }
 
     function startEditing(id: string) {
@@ -109,13 +140,42 @@ export default function IssuesPage() {
         }
     }
 
-    function updateIssue(updatedDetails: Omit<Issue, "id">) {
+    async function updateIssue(updatedDetails: IssueInput) {
         if (!editingIssue) return;
 
+        const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/api/issues/${editingIssue.id}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(updatedDetails),
+            }
+        );
+
+        if (!response.ok) {
+            const errorMessage = await response.text();
+
+            throw new Error(
+                errorMessage ||
+                `Failed to update issue: ${response.status}`
+            );
+        }
+
+        // Update the existing issue in React state
         setIssues((previousIssues) =>
             previousIssues.map((issue) =>
                 issue.id === editingIssue.id
-                    ? { ...issue, ...updatedDetails }
+                    ? {
+                        ...issue,
+                        title: updatedDetails.title,
+                        category: updatedDetails.category,
+                        status: updatedDetails.status,
+                        description: updatedDetails.description,
+                        latitude: updatedDetails.latitude,
+                        longitude: updatedDetails.longitude,
+                    }
                     : issue
             )
         );
