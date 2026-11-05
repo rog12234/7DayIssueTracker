@@ -130,6 +130,7 @@ p{
 
 .issue-card:hover {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .issue-card h4 {
@@ -246,7 +247,8 @@ p{
   gap: 10px;
 }
 /* Issue cards: main content opens full details, actions stay separate. */
-.issue-card-main {
+/*Obsolete*/
+/* .issue-card-main {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -260,18 +262,23 @@ p{
   font: inherit;
   text-align: left;
   cursor: pointer;
-}
+} 
 
 .issue-card-main:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 6px;
   border-radius: 4px;
-}
+}*/ 
 
 .view-details {
   color: #2563eb;
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+.view-details:hover {
+  font-weight: 800;
+  text-decoration: underline;
 }
 
 .buttons-list {
@@ -382,4 +389,131 @@ p{
   padding: 10px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
+}
+
+/* Progress history */
+
+.progress-section {
+  margin-top: 24px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.progress-comment {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.progress-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.progress-comment-header strong {
+  color: #1e293b;
+}
+
+.progress-comment-header time {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.progress-status-change {
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.progress-comment-text {
+  color: #334155;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Add comment form */
+
+.progress-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.progress-form textarea,
+.progress-form input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.progress-form button {
+  align-self: flex-end;
+  padding: 10px 16px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.progress-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-error {
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.progress-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  padding: 14px 16px;
+
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.progress-toggle:hover {
+  background-color: #e2e8f0;
+}
+
+.progress-toggle:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+#progress-history-content {
+  margin-top: 12px;
 }
